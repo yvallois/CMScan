@@ -1,0 +1,68 @@
+{
+  "chambers": [
+    {
+      "chamber_id" : 0,
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : 1800}],
+      "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
+      "nb_pad_x" : 100,
+      "nb_pad_y" : 100,
+      "pad_size" : 10
+    },
+    {
+      "chamber_id" : 1,
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : 1600}],
+      "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
+      "nb_pad_x" : 100,
+      "nb_pad_y" : 100,
+      "pad_size" : 10
+    },
+    {
+      "chamber_id" : 2,
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : 1400}],
+      "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
+      "nb_pad_x" : 100,
+      "nb_pad_y" : 100,
+      "pad_size" : 10
+    },
+    {
+      "chamber_id" : 3,
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : 1200}],
+      "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
+      "nb_pad_x" : 100,
+      "nb_pad_y" : 100,
+      "pad_size" : 10
+    },
+    {
+      "chamber_id": 4,
+      "translation": [{"pos_x": 0}, {"pos_y": 0}, {"pos_z": -1200}],
+      "rotation": [{"psi": 0}, {"theta": 0}, {"phi": 0}],
+      "nb_pad_x": 100,
+      "nb_pad_y": 100,
+      "pad_size": 10
+    },
+    {
+      "chamber_id" : 5,
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : -1400}],
+      "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
+      "nb_pad_x" : 100,
+      "nb_pad_y" : 100,
+      "pad_size" : 10
+    },
+    {
+      "chamber_id" : 6,
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : -1600}],
+      "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
+      "nb_pad_x" : 100,
+      "nb_pad_y" : 100,
+      "pad_size" : 10
+    },
+    {
+      "chamber_id" : 7,
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : -1800}],
+      "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
+      "nb_pad_x" : 100,
+      "nb_pad_y" : 100,
+      "pad_size" : 10
+    }
+  ]
+}
