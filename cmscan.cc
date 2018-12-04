@@ -11,10 +11,13 @@
 
 #include "cmscandetectorconstruction.hh"
 #include "cmscanactioninitialization.hh"
+#include "worldgeometry.hh"
 
 namespace po = boost::program_options;
 
 void conflicting_options(const po::variables_map& vm, const char* opt1, const char* opt2);
+
+WorldGeometry *WorldGeometry::world_geometry_ = nullptr;
 
 int main(int argc,char** argv)
 {
@@ -46,7 +49,7 @@ int main(int argc,char** argv)
         }
 
         if (vm.count("config"))
-            std::cout << "config file is " << vm["config"].as<std::string>() << "\n";
+            WorldGeometry::Instance(vm["config"].as<std::string>());
         else
             throw std::logic_error(std::string("Error : configuration file is missing"));
 

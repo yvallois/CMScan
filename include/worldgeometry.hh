@@ -20,9 +20,11 @@ class WorldGeometry
 {
 public:
 
-    static WorldGeometry *Instance();
+    static WorldGeometry *Instance(const std::string &json_name);
 
-    static void Kill();
+	static WorldGeometry *Instance();
+
+	static void Kill();
 
     inline G4ThreeVector const getWorldSize(){return world_size_;}
     inline G4ThreeVector const getDetectorSize(){return detector_size_;}
@@ -30,15 +32,16 @@ public:
     inline ChamberGeometry const GetChamberGeometry(int chamber_number){return chambers_geometry_[chamber_number];}
 
 private:
-	WorldGeometry();
+	explicit WorldGeometry(const std::string &json_name);
 	~WorldGeometry() = default;
 	void GeometryReader();
 	void PrintGeometry();
 
 private:
     G4ThreeVector world_size_;
-    G4ThreeVector detector_size_{};
+    G4ThreeVector detector_size_;
     std::map<int, ChamberGeometry> chambers_geometry_;
     static WorldGeometry *world_geometry_;
+    std::string json_file_name_;
 };
 #endif
