@@ -17,7 +17,8 @@ else()
   find_package(Geant4 REQUIRED)
 endif()
 
-FIND_PACKAGE( ILCUTIL REQUIRED COMPONENTS ILCSOFT_CMAKE_MODULES )
+FIND_PACKAGE(Boost COMPONENTS program_options REQUIRED)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
 FIND_PACKAGE( LCIO )
 INCLUDE_DIRECTORIES( ${LCIO_INCLUDE_DIRS} )
@@ -56,6 +57,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #
 add_executable(cmscan cmscan.cc ${sources} ${headers})
 target_link_libraries(cmscan ${Geant4_LIBRARIES} ${CRY_LIBRARIES})
+target_link_libraries(cmscan LINK_PUBLIC ${Boost_LIBRARIES} )
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build CMTScan. This is so that we can run the executable directly because it
