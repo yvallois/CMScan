@@ -10,7 +10,6 @@
 
 //TODO Construire le world et le detecteur a la bonne taille
 //TODO ../geometry/geometry.json passe par argument dans le constructeur
-WorldGeometry *WorldGeometry::world_geometry_ = nullptr;
 
 CMScanDetectorConstruction::CMScanDetectorConstruction() : geometry_file_("../geometry/geometry.json") {
     world_geometry_ = WorldGeometry::Instance();

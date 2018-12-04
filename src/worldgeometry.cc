@@ -6,14 +6,22 @@
 #include "document.h"
 #include "G4RotationMatrix.hh"
 //TODO check detector size
-WorldGeometry *WorldGeometry::Instance() {
+WorldGeometry *WorldGeometry::Instance(const std::string &json_name) {
 
     if (nullptr == world_geometry_) {
-        world_geometry_ = new WorldGeometry;
+        world_geometry_ = new WorldGeometry(json_name);
     }
     return world_geometry_;
 }
 
+
+WorldGeometry *WorldGeometry::Instance() {
+
+    if (world_geometry_ == nullptr)
+        std::cerr<< "Warning : World Geometry Singleton is not instantiated" <<std::endl;
+
+    return world_geometry_;
+}
 
 void WorldGeometry::Kill() {
 
@@ -24,7 +32,11 @@ void WorldGeometry::Kill() {
 
 }
 
-WorldGeometry::WorldGeometry() : world_size_{}, detector_size_{}, chambers_geometry_{} {
+WorldGeometry::WorldGeometry(const std::string &json_name) :
+        world_size_{},
+        detector_size_{},
+        chambers_geometry_{},
+        json_file_name_(json_name) {
 
     GeometryReader();
     PrintGeometry();
@@ -69,7 +81,7 @@ WorldGeometry::WorldGeometry() : world_size_{}, detector_size_{}, chambers_geome
 void WorldGeometry::GeometryReader() {
 
     chambers_geometry_.clear();
-    FILE* file = fopen("../geometry/geometry.json", "r");
+    FILE* file = fopen(json_file_name_.c_str(), "r");
     char readBuffer[65536];
     rapidjson::FileReadStream read_stream(file, readBuffer, sizeof(readBuffer));
     rapidjson::Document document;
