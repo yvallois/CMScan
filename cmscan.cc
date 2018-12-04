@@ -10,7 +10,6 @@
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
 //TODO fichier config
 int main(int argc,char** argv)
 {
