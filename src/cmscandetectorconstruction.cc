@@ -1,27 +1,26 @@
 #include "cmscandetectorconstruction.hh"
 #include "cmscansensitivedetector.hh"
 #include "G4SDManager.hh"
-#include "G4SDParticleFilter.hh"
 #include "G4RunManager.hh"
 #include "G4NistManager.hh"
 
 #include "G4Box.hh"
 #include "G4PVPlacement.hh"
 
-//TODO Construire le world et le detecteur a la bonne taille
-//TODO ../geometry/geometry.json passe par argument dans le constructeur
-
 CMScanDetectorConstruction::CMScanDetectorConstruction() : geometry_file_("../geometry/geometry.json") {
+
     world_geometry_ = WorldGeometry::Get();
 }
 
 
 G4VPhysicalVolume* CMScanDetectorConstruction::Construct() {
+
 	DefineMaterials();
 	return DefineVolumes();
 }
 
 void CMScanDetectorConstruction::DefineMaterials() {
+
 	G4NistManager *nist_rpc_materials = G4NistManager::Instance();
 
 	///elements of the materials used
@@ -148,13 +147,6 @@ G4VPhysicalVolume* CMScanDetectorConstruction::DefineVolumes() {
     G4VPhysicalVolume *world_physic = new G4PVPlacement(nullptr, G4ThreeVector(), world_logic, "WorldPhysic", nullptr, false, 0, true);
 
     ///Construction du detecteur et des filtres
-    CMScanSensitiveDetector *sensitive_detector = new CMScanSensitiveDetector("CalorimeterSD","TrackerHitsCollection");
-    G4SDParticleFilter *muon_filter = new G4SDParticleFilter("MuonFilter");
-    muon_filter->add("mu+");
-    muon_filter->add("mu-");
-    sensitive_detector->SetFilter(muon_filter);
-    G4SDManager::GetSDMpointer()->AddNewDetector(sensitive_detector);
-
 	std::map<int, Rpc_base*> rpc_store = world_geometry_->GetRpcs();
 	for (auto &item : rpc_store){
 	    item.second->Build();

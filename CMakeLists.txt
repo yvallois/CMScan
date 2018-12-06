@@ -55,7 +55,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(cmscan cmscan.cc ${sources} ${headers})
+add_executable(cmscan cmscan.cc ${sources} ${headers} include/rpc_base.h include/factory.h include/rpc_sdhcal.h src/rpc_sdhcal_g4impl.cc include/rpc_sdhcal_g4impl.h)
 target_link_libraries(cmscan ${Geant4_LIBRARIES} ${CRY_LIBRARIES})
 target_link_libraries(cmscan LINK_PUBLIC ${Boost_LIBRARIES} )
 #----------------------------------------------------------------------------

@@ -15,8 +15,6 @@ class CMScanSensitiveDetector : public G4VSensitiveDetector {
 public:
     CMScanSensitiveDetector(const G4String &name, const G4String &hits_collection_name, Rpc_base *rpc);
 
-    CMScanSensitiveDetector(const G4String &name, const G4String &hits_collection_name);
-
     ~CMScanSensitiveDetector() override;
 
     void Initialize(G4HCofThisEvent *event_hit_collection) override;

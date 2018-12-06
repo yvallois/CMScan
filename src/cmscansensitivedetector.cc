@@ -18,16 +18,6 @@ CMScanSensitiveDetector::CMScanSensitiveDetector(const G4String &name,
 }
 
 
-CMScanSensitiveDetector::CMScanSensitiveDetector(const G4String &name,
-                                                 const G4String &hits_collection_name) :
-        G4VSensitiveDetector(name),
-        hits_collection_(nullptr),
-        current_hit_(nullptr) {
-
-    collectionName.insert(hits_collection_name);
-}
-
-
 CMScanSensitiveDetector::~CMScanSensitiveDetector() = default;
 
 

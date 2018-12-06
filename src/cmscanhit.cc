@@ -1,7 +1,7 @@
 #include "G4AffineTransform.hh"
-#include "cmscanhit.hh"
 #include "G4VVisManager.hh"
-#include <G4TouchableHistory.hh>
+
+#include "cmscanhit.hh"
 
 
 G4ThreadLocal G4Allocator<CMScanHit> *CMTScanTrackerHitAllocator = nullptr;
@@ -24,6 +24,7 @@ CMScanHit::CMScanHit(G4Step *step, Rpc_base *rpc)
 
 
 void *CMScanHit::operator new(size_t) {
+
     if (!CMTScanTrackerHitAllocator)
         CMTScanTrackerHitAllocator = new G4Allocator<CMScanHit>;
     return (void *) CMTScanTrackerHitAllocator->MallocSingle();
@@ -31,8 +32,10 @@ void *CMScanHit::operator new(size_t) {
 
 
 void CMScanHit::operator delete(void *hit) {
+
     CMTScanTrackerHitAllocator->FreeSingle((CMScanHit *) hit);
 }
+
 
 void CMScanHit::Print() {
 
@@ -41,12 +44,14 @@ void CMScanHit::Print() {
     std::cout << "time : " << time_ << std::endl;
 }
 
+
 void CMScanHit::AddStep(const G4Step *step) {
 
     end_position_ = step->GetPostStepPoint()->GetPosition();
     energy_deposited_ += step->GetTotalEnergyDeposit();
     is_leaving_step_ = (step->GetPostStepPoint()->GetStepStatus() == fGeomBoundary);
 }
+
 
 void CMScanHit::Finalize() {
 
