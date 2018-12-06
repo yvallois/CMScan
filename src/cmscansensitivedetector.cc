@@ -8,7 +8,7 @@
 
 CMScanSensitiveDetector::CMScanSensitiveDetector(const G4String &name,
                                                  const G4String &hits_collection_name,
-                                                 CMScanRPC *rpc) :
+                                                 Rpc_base *rpc) :
         G4VSensitiveDetector(name),
         hits_collection_(nullptr),
         rpc_(rpc),

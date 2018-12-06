@@ -7,7 +7,7 @@
 G4ThreadLocal G4Allocator<CMScanHit> *CMTScanTrackerHitAllocator = nullptr;
 
 
-CMScanHit::CMScanHit(G4Step *step, CMScanRPC *rpc)
+CMScanHit::CMScanHit(G4Step *step, Rpc_base *rpc)
         : G4VHit(),
           position_(G4ThreeVector()),
           rpc_(rpc),

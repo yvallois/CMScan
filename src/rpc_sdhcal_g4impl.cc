@@ -1,5 +1,5 @@
 //
-// Created by vallois on 05/07/18.
+// Created by vallois on 05/12/18.
 //
 
 #include "G4Box.hh"
@@ -11,20 +11,18 @@
 #include "G4SDManager.hh"
 #include "G4SDParticleFilter.hh"
 
-#include "cmscanrpc.hh"
+#include "rpc_sdhcal_g4impl.h"
 #include "cmscansensitivedetector.hh"
 
-//TODO charged particules not only muon
-CMScanRPC::CMScanRPC(int i, int pad_number_x, int pad_number_y, int pad_size) :
-        chamber_id_(i),
-        pad_number_x_(pad_number_x),
-        pad_number_y_(pad_number_y),
-        pad_size_(pad_size),
+
+Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl(int chamber_id, int stack_id) :
+        Rpc_SDHCAL(chamber_id, stack_id),
         rpc_logic_(nullptr),
-        affine_transform_(){
+        name_("") {
+
 
     name_="RPC_";
-    name_.append(std::to_string(i));
+    name_.append(std::to_string(chamber_id_));
 
     G4LogicalVolumeStore* store = G4LogicalVolumeStore::GetInstance() ;
     if (store->GetVolume(name_ , false)) {
@@ -32,11 +30,19 @@ CMScanRPC::CMScanRPC(int i, int pad_number_x, int pad_number_y, int pad_size) :
         std::cout << "Error : RPC with the same name" << std::endl;
         exit(EXIT_FAILURE);
     }
-    Build();
 }
 
+void Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl::PrintGeometry() {
 
-void CMScanRPC::Build() {
+    std::cout << "*** chamber id : " << chamber_id_ << std::endl;
+    std::cout << "*** stack id : " << stack_id_ << std::endl;
+    std::cout << "*** translation" << translation_ << std::endl;
+    std::cout << "*** rotation" << rotation_ << std::endl;
+    std::cout << "*** nb pad x : " << num_pad_x_ << "\t nb pad y : " << num_pad_y_ << std::endl;
+    std::cout << "*** pad size : " << pad_size_ << std::endl << std::endl;
+}
+
+void Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl::Build() {
 
     const G4double chip_thickness = 1.6*mm;
     const G4double pcb_thickness = 1.2*mm;
@@ -54,7 +60,6 @@ void CMScanRPC::Build() {
 
     const G4double cassette_thickness = 5*mm;
     const G4double rpc_thickness = inner_thickness + cassette_thickness*2;
-    chamber_size_ = {pad_number_x_*pad_size_, pad_number_y_*pad_size_, rpc_thickness};
 
     G4NistManager *nist_manager = G4NistManager::Instance();
 
@@ -123,21 +128,14 @@ void CMScanRPC::Build() {
     gas_chamber_logic->SetSensitiveDetector(sensitive_detector);
 }
 
+void Rpc_SDHCAL_G4impl::AddChamber(G4LogicalVolume *mother_logic) {
 
-void CMScanRPC::AddChamber(G4RotationMatrix* rot, G4ThreeVector& trans, G4LogicalVolume* mother_logic) {
-
-    affine_transform_ = G4AffineTransform(rot, trans);
-    new G4PVPlacement(rot, trans, rpc_logic_, name_, mother_logic, false, 0, true);
+    auto *rotation_matrix = new G4RotationMatrix(rotation_[0], rotation_[1], rotation_[2]);
+    affine_transform_ = G4AffineTransform(rotation_matrix, translation_);
+    new G4PVPlacement(rotation_matrix, translation_, rpc_logic_, name_, mother_logic, false, 0, true);
 }
 
-
-CMScanRPC::~CMScanRPC() {
-
-    delete rpc_logic_;
-}
-
-
-void CMScanRPC::GlobalToRPCCoordinate(G4ThreeVector &coordinate) {
+void Rpc_SDHCAL_G4impl::GlobalToRPCCoordinate(G4ThreeVector &coordinate) {
 
     affine_transform_.TransformPoint(coordinate);
 

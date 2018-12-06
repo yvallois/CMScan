@@ -12,7 +12,7 @@
 //TODO ../geometry/geometry.json passe par argument dans le constructeur
 
 CMScanDetectorConstruction::CMScanDetectorConstruction() : geometry_file_("../geometry/geometry.json") {
-    world_geometry_ = WorldGeometry::Instance();
+    world_geometry_ = WorldGeometry::Get();
 }
 
 
@@ -155,15 +155,11 @@ G4VPhysicalVolume* CMScanDetectorConstruction::DefineVolumes() {
     sensitive_detector->SetFilter(muon_filter);
     G4SDManager::GetSDMpointer()->AddNewDetector(sensitive_detector);
 
-
-    auto chamber_number = static_cast<int>(world_geometry_->GetChamberNumber());
-    for (int i = 0; i < chamber_number; ++i) {
-        ChamberGeometry chamber_geometry = world_geometry_->GetChamberGeometry(i);
-        auto a_rpc = new CMScanRPC(i, chamber_geometry.nb_pad_x, chamber_geometry.nb_pad_y, chamber_geometry.pad_size);
-        rpc_list_.push_back(a_rpc);
-        auto *rotation_matrix = new G4RotationMatrix(chamber_geometry.rotation.getX(), chamber_geometry.rotation.getY(), chamber_geometry.rotation.getZ());
-        rpc_list_[i]->AddChamber(rotation_matrix, chamber_geometry.translation, world_logic);
-    }
+	std::map<int, Rpc_base*> rpc_store = world_geometry_->GetRpcs();
+	for (auto &item : rpc_store){
+	    item.second->Build();
+        item.second->AddChamber(world_logic);
+	}
 /*
     /////////////////////////////////////////////////////
     /// Container

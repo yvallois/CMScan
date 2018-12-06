@@ -7,7 +7,6 @@
 #include "globals.hh"
 #include "G4ThreeVector.hh"
 #include "worldgeometry.hh"
-#include "cmscanrpc.hh"
 
 
 class G4VPhysicalVolume;
@@ -24,7 +23,6 @@ public:
     G4VPhysicalVolume* DefineVolumes();
 
 private:
-    std::vector<CMScanRPC*> rpc_list_;
     std::string geometry_file_;
     WorldGeometry *world_geometry_;
 };

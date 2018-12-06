@@ -5,7 +5,7 @@
 
 #include "G4VSensitiveDetector.hh"
 #include "cmscanhit.hh"
-#include "cmscanrpc.hh"
+#include "rpc_base.h"
 
 class G4Step;
 class G4HCofThisEvent;
@@ -13,7 +13,7 @@ class G4HCofThisEvent;
 class CMScanSensitiveDetector : public G4VSensitiveDetector {
 
 public:
-    CMScanSensitiveDetector(const G4String &name, const G4String &hits_collection_name, CMScanRPC *rpc);
+    CMScanSensitiveDetector(const G4String &name, const G4String &hits_collection_name, Rpc_base *rpc);
 
     CMScanSensitiveDetector(const G4String &name, const G4String &hits_collection_name);
 
@@ -27,7 +27,7 @@ public:
 
 private:
     HitsCollection *hits_collection_;
-    CMScanRPC *rpc_;
+    Rpc_base *rpc_;
     CMScanHit *current_hit_;
 };
 

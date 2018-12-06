@@ -21,7 +21,7 @@ CMTScanPrimaryGeneratorAction::CMTScanPrimaryGeneratorAction(const char *inputfi
         }
 
         CRYSetup *setup = new CRYSetup(setupString, "../data");
-        WorldGeometry *_geometryVariable = WorldGeometry::Instance();
+        WorldGeometry *_geometryVariable = WorldGeometry::Get();
 
         double Detector_Size_X = _geometryVariable->getDetectorSize().getX() / 1000.;
         double Detector_Size_Y = _geometryVariable->getDetectorSize().getY() / 1000.;
@@ -130,7 +130,7 @@ G4double CMTScanPrimaryGeneratorAction::TimeSimulated = 0;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void CMTScanPrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
 {
-    WorldGeometry *_geometryVariable = WorldGeometry::Instance();
+    WorldGeometry *_geometryVariable = WorldGeometry::Get();
     G4double Detector_Size_X = _geometryVariable->getDetectorSize().getX();
     G4double Detector_Size_Y = _geometryVariable->getDetectorSize().getY();
     G4double Detector_Size_Z = _geometryVariable->getDetectorSize().getZ();

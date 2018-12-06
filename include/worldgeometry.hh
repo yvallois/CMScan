@@ -7,14 +7,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4ThreeVector.hh"
 
-struct ChamberGeometry{
-    int chamber_id;
-    G4ThreeVector translation;
-    G4ThreeVector rotation;
-    int nb_pad_x;
-    int nb_pad_y;
-    int pad_size;
-};
+#include "rpc_base.h"
 
 class WorldGeometry
 {
@@ -22,25 +15,30 @@ public:
 
     static WorldGeometry *Instance(const std::string &json_name);
 
-	static WorldGeometry *Instance();
+	static WorldGeometry *Get();
 
 	static void Kill();
 
-    inline G4ThreeVector const getWorldSize(){return world_size_;}
-    inline G4ThreeVector const getDetectorSize(){return detector_size_;}
-    inline unsigned long GetChamberNumber(){return chambers_geometry_.size();}
-    inline ChamberGeometry const GetChamberGeometry(int chamber_number){return chambers_geometry_[chamber_number];}
+    inline G4ThreeVector const getWorldSize() { return world_size_; }
+
+    inline G4ThreeVector const getDetectorSize() { return detector_size_; }
+
+    inline std::map<int, Rpc_base *> const GetRpcs() { return rpc_store_; }
+
+    inline unsigned long GetNumRpc() { return rpc_store_.size(); }
+
+    inline Rpc_base *const GetRpc(int chamber_number) { return rpc_store_[chamber_number]; }
 
 private:
 	explicit WorldGeometry(const std::string &json_name);
-	~WorldGeometry() = default;
+	~WorldGeometry();
 	void GeometryReader();
 	void PrintGeometry();
 
 private:
     G4ThreeVector world_size_;
     G4ThreeVector detector_size_;
-    std::map<int, ChamberGeometry> chambers_geometry_;
+    std::map<int, Rpc_base*> rpc_store_;
     static WorldGeometry *world_geometry_;
     std::string json_file_name_;
 };

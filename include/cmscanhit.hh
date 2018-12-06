@@ -7,13 +7,13 @@
 #include "G4Allocator.hh"
 #include "G4ThreeVector.hh"
 #include "tls.hh"
-#include "cmscanrpc.hh"
+#include "rpc_base.h"
 
 
 class CMScanHit : public G4VHit {
 
 public:
-    explicit CMScanHit(G4Step *step, CMScanRPC *rpc);
+    explicit CMScanHit(G4Step *step, Rpc_base *rpc);
 
     ~CMScanHit() override = default;
 
@@ -55,7 +55,7 @@ private:
     G4int pdg_ID_;
     G4double energy_deposited_;
     G4bool is_leaving_step_;
-    CMScanRPC *rpc_;
+	Rpc_base *rpc_;
     G4int chamber_ID_;
 };
 

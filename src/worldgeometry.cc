@@ -4,8 +4,11 @@
 #include "worldgeometry.hh"
 #include "filereadstream.h"
 #include "document.h"
-#include "G4RotationMatrix.hh"
-//TODO check detector size
+
+#include "factory.h"
+#include "rpc_sdhcal_g4impl.h"
+
+//TODO changer detector size c'est codé avec le cul
 WorldGeometry *WorldGeometry::Instance(const std::string &json_name) {
 
     if (nullptr == world_geometry_) {
@@ -15,7 +18,7 @@ WorldGeometry *WorldGeometry::Instance(const std::string &json_name) {
 }
 
 
-WorldGeometry *WorldGeometry::Instance() {
+WorldGeometry *WorldGeometry::Get() {
 
     if (world_geometry_ == nullptr)
         std::cerr<< "Warning : World Geometry Singleton is not instantiated" <<std::endl;
@@ -26,6 +29,7 @@ WorldGeometry *WorldGeometry::Instance() {
 void WorldGeometry::Kill() {
 
     if (nullptr != world_geometry_) {
+
         delete world_geometry_;
         world_geometry_ = nullptr;
     }
@@ -35,7 +39,7 @@ void WorldGeometry::Kill() {
 WorldGeometry::WorldGeometry(const std::string &json_name) :
         world_size_{},
         detector_size_{},
-        chambers_geometry_{},
+        rpc_store_{},
         json_file_name_(json_name) {
 
     GeometryReader();
@@ -45,23 +49,25 @@ WorldGeometry::WorldGeometry(const std::string &json_name) :
     double maximum_z = -1e9;
     double extremum_x = -1e9;
     double extremum_y = -1e9;
-    for (auto &it : chambers_geometry_){
-        G4RotationMatrix rotation_matrix(it.second.rotation.getX(), it.second.rotation.getY(), it.second.rotation.getZ());
+    for (auto &it : rpc_store_){
+
+        G4ThreeVector rotation = it.second->GetRotation();
+        G4ThreeVector translation = it.second->GetTranslation();
+        G4ThreeVector chamber_size = it.second->GetChamberSize();
+
+        G4RotationMatrix rotation_matrix(rotation.getX(), rotation.getY(), rotation.getZ());
         G4RotationMatrix inverse_matrix = rotation_matrix.inverse();
 
-        double size_x = it.second.pad_size * it.second.nb_pad_x;
-        double size_y = it.second.pad_size * it.second.nb_pad_y;
-
         G4ThreeVector corner_point[4];
-        corner_point[0] = {-size_x*0.5,-size_y*0.5,0};
-        corner_point[1] = {-size_x*0.5,size_y*0.5,0};
-        corner_point[2] = {size_x*0.5,size_y*0.5,0};
-        corner_point[3] = {size_x*0.5,-size_y*0.5,0};
+        corner_point[0] = {-chamber_size[0] * 0.5, -chamber_size[1] * 0.5, 0};
+        corner_point[1] = {-chamber_size[0] * 0.5, chamber_size[1] * 0.5, 0};
+        corner_point[2] = {chamber_size[0] * 0.5, chamber_size[1] * 0.5, 0};
+        corner_point[3] = {chamber_size[0] * 0.5, -chamber_size[1] * 0.5, 0};
 
-        corner_point[0] = corner_point[0].transform(inverse_matrix)+it.second.translation;
-        corner_point[1] = corner_point[1].transform(inverse_matrix)+it.second.translation;
-        corner_point[2] = corner_point[2].transform(inverse_matrix)+it.second.translation;
-        corner_point[3] = corner_point[3].transform(inverse_matrix)+it.second.translation;
+        corner_point[0] = corner_point[0].transform(inverse_matrix) + translation;
+        corner_point[1] = corner_point[1].transform(inverse_matrix) + translation;
+        corner_point[2] = corner_point[2].transform(inverse_matrix) + translation;
+        corner_point[3] = corner_point[3].transform(inverse_matrix) + translation;
 
         for (auto &i : corner_point) {
             if (i[2] > maximum_z)
@@ -80,13 +86,15 @@ WorldGeometry::WorldGeometry(const std::string &json_name) :
 
 void WorldGeometry::GeometryReader() {
 
-    chambers_geometry_.clear();
     FILE* file = fopen(json_file_name_.c_str(), "r");
     char readBuffer[65536];
     rapidjson::FileReadStream read_stream(file, readBuffer, sizeof(readBuffer));
     rapidjson::Document document;
     document.ParseStream(read_stream);
     fclose(file);
+
+    Factory<Rpc_base, std::string>::Register("SDHCAL", &createInstance<Rpc_SDHCAL_G4impl>);
+    Factory<Rpc_base> factory;
 
     assert(document.HasMember("chambers") && document["chambers"].IsArray());
     const rapidjson::Value& chamber = document["chambers"];
@@ -105,14 +113,17 @@ void WorldGeometry::GeometryReader() {
             G4ThreeVector rotation(rotation_array[0]["psi"].GetDouble()*CLHEP::pi/180,
                                    rotation_array[1]["theta"].GetDouble()*CLHEP::pi/180,
                                    rotation_array[2]["phi"].GetDouble()*CLHEP::pi/180);
+            std::string type = chamber[i]["type"].GetString();
+            int stack_id = chamber[i]["stack_id"].GetInt();
 
-            int nb_pad_x = chamber[i]["nb_pad_x"].GetInt();
-            int nb_pad_y = chamber[i]["nb_pad_y"].GetInt();
-            int pad_size = chamber[i]["pad_size"].GetInt();
+            auto it = rpc_store_.insert({chamber_id, factory.Create(type, chamber_id, stack_id)});
+            if (it.second){
 
-            auto it = chambers_geometry_.insert({chamber_id, ChamberGeometry{chamber_id, translation, rotation, nb_pad_x, nb_pad_y, pad_size}});
+                it.first->second->SetTranslation(translation);
+                it.first->second->SetRotation(rotation);
+            }
+            else{
 
-            if(!it.second){
                 std::cout <<"ERROR : Chamber "<<chamber_id<<" already exists"<<std::endl;
                 exit(EXIT_FAILURE);
             }
@@ -127,15 +138,16 @@ void WorldGeometry::GeometryReader() {
 void WorldGeometry::PrintGeometry() {
 
     std::cout<<"-------------------------------------------------"<<std::endl;
-    for (auto &it : chambers_geometry_){
-
-        std::cout<<"Chamber : "<<it.second.chamber_id<<std::endl;
-        std::cout<<"*** translation"<<it.second.translation<<std::endl;
-        std::cout<<"*** rotation"<<it.second.rotation<<std::endl;
-        std::cout<<"*** nb pad x : "<<it.second.nb_pad_x<<"\t nb pad y : "<<it.second.nb_pad_y<<std::endl;
-        std::cout<<"*** pad size : "<<it.second.pad_size<<std::endl<<std::endl;
+    for (auto &item : rpc_store_){
+        std::cout << "chamber : " << item.first << std::endl;
+        item.second->PrintGeometry();
     }
     std::cout<<"-------------------------------------------------"<<std::endl;
 
 }
 
+WorldGeometry::~WorldGeometry() {
+
+    for (auto &item : rpc_store_)
+        delete item.second;
+}
