@@ -6,12 +6,12 @@
 
 G4ThreadLocal G4Allocator<CMScanHit> *CMTScanTrackerHitAllocator = nullptr;
 
+class G4VSensitiveDetector;
 
-CMScanHit::CMScanHit(G4Step *step, Rpc_base *rpc)
+CMScanHit::CMScanHit(G4Step *step, int chamber_id)
         : G4VHit(),
           position_(G4ThreeVector()),
-          rpc_(rpc),
-          chamber_ID_(-1){
+          chamber_id_(chamber_id){
 
     track_ID_ = step->GetTrack()->GetTrackID();
     begin_position_ = step->GetPreStepPoint()->GetPosition();
@@ -39,7 +39,7 @@ void CMScanHit::operator delete(void *hit) {
 
 void CMScanHit::Print() {
 
-    std::cout<<"*******************************************************************************************"<<std::endl;
+    std::cout << "*****************************************************************************************" << std::endl;
     std::cout << "posX : " << position_[0] << "\t\tposY : " << position_[1] << "\t\tposZ : " << position_[2] << std::endl;
     std::cout << "time : " << time_ << std::endl;
 }
@@ -56,6 +56,4 @@ void CMScanHit::AddStep(const G4Step *step) {
 void CMScanHit::Finalize() {
 
     position_ = 0.5 * (end_position_ + begin_position_);
-    rpc_->GlobalToRPCCoordinate(position_);
-    chamber_ID_ = rpc_->GetChamberId();
 }

@@ -13,7 +13,7 @@
 class CMScanHit : public G4VHit {
 
 public:
-    explicit CMScanHit(G4Step *step, Rpc_base *rpc);
+    explicit CMScanHit(G4Step *step, int chamber_id);
 
     ~CMScanHit() override = default;
 
@@ -42,7 +42,7 @@ public:
 
     inline G4int GetPDGID() const { return pdg_ID_; }
 
-    inline G4int GetChamberID() const { return chamber_ID_; };
+    inline G4int GetChamberID() const { return chamber_id_; };
 
 private:
 	G4double deposited_energy_;
@@ -55,8 +55,7 @@ private:
     G4int pdg_ID_;
     G4double energy_deposited_;
     G4bool is_leaving_step_;
-	Rpc_base *rpc_;
-    G4int chamber_ID_;
+    G4int chamber_id_;
 };
 
 typedef G4THitsCollection<CMScanHit> HitsCollection;

@@ -8,11 +8,11 @@
 
 CMScanSensitiveDetector::CMScanSensitiveDetector(const G4String &name,
                                                  const G4String &hits_collection_name,
-                                                 Rpc_base *rpc) :
+                                                 int chamber_id) :
         G4VSensitiveDetector(name),
         hits_collection_(nullptr),
-        rpc_(rpc),
-        current_hit_(nullptr) {
+        current_hit_(nullptr),
+        detector_id_(chamber_id) {
 
     collectionName.insert(hits_collection_name);
 }
@@ -23,10 +23,10 @@ CMScanSensitiveDetector::~CMScanSensitiveDetector() = default;
 
 void CMScanSensitiveDetector::Initialize(G4HCofThisEvent *event_hit_collection) {
 
-    // Create hits collection
+    /// Create hits collection
     hits_collection_ = new HitsCollection(SensitiveDetectorName, collectionName[0]);
 
-    // Add this collection in event_hit_collection
+    /// Add this collection in event_hit_collection
     G4int hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
     event_hit_collection->AddHitsCollection(hcID, hits_collection_);
 }
@@ -48,12 +48,12 @@ G4bool CMScanSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *hi
 
             current_hit_->Finalize();
             hits_collection_->insert(current_hit_);
-            current_hit_ = new CMScanHit(step, rpc_);
+            current_hit_ = new CMScanHit(step, detector_id_);
         }
     }
     else{
 
-        current_hit_ = new CMScanHit(step, rpc_);
+        current_hit_ = new CMScanHit(step, detector_id_);
     }
 
     if ( current_hit_->GetIsLeaving() ) {

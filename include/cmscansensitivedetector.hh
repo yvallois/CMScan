@@ -13,7 +13,7 @@ class G4HCofThisEvent;
 class CMScanSensitiveDetector : public G4VSensitiveDetector {
 
 public:
-    CMScanSensitiveDetector(const G4String &name, const G4String &hits_collection_name, Rpc_base *rpc);
+    CMScanSensitiveDetector(const G4String &name, const G4String &hits_collection_name, int chamber_id);
 
     ~CMScanSensitiveDetector() override;
 
@@ -25,8 +25,8 @@ public:
 
 private:
     HitsCollection *hits_collection_;
-    Rpc_base *rpc_;
     CMScanHit *current_hit_;
+    int detector_id_;
 };
 
 #endif

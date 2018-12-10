@@ -53,13 +53,7 @@ void Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl::Build() {
     const G4double glass_cathode_thickness = 1.1*mm;
     const G4double coating_cathode_thickness = 0.05*mm;
     const G4double mylar_cathode_thickness = 0.18*mm;
-
-    const G4double inner_thickness = chip_thickness + pcb_thickness + mylar_anode_thickness + coating_anode_thickness +
-                                     glass_anode_thickness + gas_chamber_thickness + glass_cathode_thickness +
-                                     coating_cathode_thickness + mylar_cathode_thickness;
-
     const G4double cassette_thickness = 5*mm;
-    const G4double rpc_thickness = inner_thickness + cassette_thickness*2;
 
     G4NistManager *nist_manager = G4NistManager::Instance();
 
@@ -117,8 +111,7 @@ void Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl::Build() {
     rpc_logic_ = rpc_logic;
 
     auto *sensitive_detector = new CMScanSensitiveDetector("SensitiveDetector_" + std::to_string(chamber_id_),
-                                                           "Hit_" + std::to_string(chamber_id_),
-                                                           this);
+                                                           "Hit_" + std::to_string(chamber_id_), chamber_id_);
     G4SDParticleFilter *muon_filter = new G4SDParticleFilter("MuonFilter");
     muon_filter->add("mu+");
     muon_filter->add("mu-");
