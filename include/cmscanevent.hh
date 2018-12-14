@@ -21,6 +21,7 @@ public:
 
 private:
     CMTScanRunAction *run_action_;
+    WorldGeometry *world_geometry_;
 };
 
 #endif

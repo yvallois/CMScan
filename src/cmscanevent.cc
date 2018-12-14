@@ -6,7 +6,11 @@
 
 CMTScanEventAction::CMTScanEventAction(CMTScanRunAction *run_action) :
         G4UserEventAction(),
-        run_action_(run_action) {}
+        run_action_(run_action),
+        world_geometry_(nullptr) {
+
+    world_geometry_ = WorldGeometry::Get();
+}
 
 
 void CMTScanEventAction::BeginOfEventAction(const G4Event *event) {
@@ -23,20 +27,26 @@ void CMTScanEventAction::EndOfEventAction(const G4Event *event) {
     CMScanRootWriter *root_writer = run_action_->GetRootWriter();
 
     G4HCofThisEvent *col = event->GetHCofThisEvent();
-    std::vector<CMScanHit*> hits;
-    std::cout << "event number : " << event->GetEventID() << std::endl;
+    std::vector<CMScanDigit> digits;
+
+
     for (int i = 0; i < col->GetNumberOfCollections(); i++) {
 
         auto *hits_collection = dynamic_cast<HitsCollection*>(col->GetHC(i));
         std::cout << "hit collection name : " << hits_collection->GetName() << std::endl;
         std::vector<CMScanHit*> hits_per_chamber = *(hits_collection->GetVector());
-        hits.insert(hits.end(), hits_per_chamber.begin(), hits_per_chamber.end());
+
+        if (!hits_per_chamber.empty()){
+
+            int chamber_id = hits_per_chamber.at(0)->GetChamberID();
+            auto digits_per_chamber = world_geometry_->GetRpc(chamber_id)->Digitize(hits_per_chamber);
+            digits.insert(digits.end(), digits_per_chamber.begin(), digits_per_chamber.end());
+        }
     }
 
-    if (!hits.empty()) {
-
-        root_writer->AddHits(hits);
-        lcio_writer->AddHits(hits);
+    if (!digits.empty()) {
+        root_writer->AddHits(digits);
+        lcio_writer->AddHits(digits);
     }
 }
 

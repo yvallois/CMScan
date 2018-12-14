@@ -20,7 +20,7 @@ public:
 
     void ClearEvent();
 
-    void AddHits(std::vector<CMScanHit*> &hits);
+    void AddHits(std::vector<CMScanDigit> &digits);
 
 private:
     IO::LCWriter* lcwriter_;

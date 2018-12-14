@@ -2,6 +2,8 @@
 // Created by vallois on 05/12/18.
 //
 
+#include <set>
+
 #include "G4Box.hh"
 #include "G4LogicalVolume.hh"
 #include "G4SystemOfUnits.hh"
@@ -18,7 +20,9 @@
 Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl(int chamber_id, int stack_id) :
         Rpc_SDHCAL(chamber_id, stack_id),
         rpc_logic_(nullptr),
-        name_("") {
+        name_(""),
+        noise_rate_(2),
+        real_distribution(std::uniform_real_distribution<>(0, 1)) {
 
 
     name_="RPC_";
@@ -30,7 +34,11 @@ Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl(int chamber_id, int stack_id) :
         std::cout << "Error : RPC with the same name" << std::endl;
         exit(EXIT_FAILURE);
     }
+
+    noise_distribution_ = std::binomial_distribution<int>(9, num_pad_x_ * num_pad_y_ * noise_rate_ * 600e-9);
+    gen_noise_distribution_ = std::uniform_int_distribution<>(0, num_pad_x_ - 1);
 }
+
 
 void Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl::PrintGeometry() {
 
@@ -41,6 +49,7 @@ void Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl::PrintGeometry() {
     std::cout << "*** nb pad x : " << num_pad_x_ << "\t nb pad y : " << num_pad_y_ << std::endl;
     std::cout << "*** pad size : " << pad_size_ << std::endl << std::endl;
 }
+
 
 void Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl::Build() {
 
@@ -121,12 +130,14 @@ void Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl::Build() {
     gas_chamber_logic->SetSensitiveDetector(sensitive_detector);
 }
 
+
 void Rpc_SDHCAL_G4impl::AddChamber(G4LogicalVolume *mother_logic) {
 
     auto *rotation_matrix = new G4RotationMatrix(rotation_[0], rotation_[1], rotation_[2]);
     affine_transform_ = G4AffineTransform(rotation_matrix, translation_);
     new G4PVPlacement(rotation_matrix, translation_, rpc_logic_, name_, mother_logic, false, 0, true);
 }
+
 
 void Rpc_SDHCAL_G4impl::GlobalToRPCCoordinate(G4ThreeVector &coordinate) {
 
@@ -136,4 +147,119 @@ void Rpc_SDHCAL_G4impl::GlobalToRPCCoordinate(G4ThreeVector &coordinate) {
     coordinate[1] = static_cast<int>((coordinate[1]) / pad_size_) * pad_size_ + chamber_size_[1] * 0.5;
 
     affine_transform_.Invert().TransformPoint(coordinate);
+}
+
+
+std::vector<CMScanDigit> Rpc_SDHCAL_G4impl::Digitize(std::vector<CMScanHit *> &hits) {
+
+    std::vector<CMScanDigit> digits{};
+    std::vector<int> time_processed_noise;
+    for (auto &hit : hits){
+
+        ///Add noise
+        auto time = static_cast<int>(hit->GetTime()/200);
+        std::set<std::pair<int, int>> temp;
+        int K = hit->GetChamberID();
+        if (std::none_of(time_processed_noise.begin(), time_processed_noise.end(), [&](int i){return i == time;})) {
+
+            time_processed_noise.push_back(time);
+            int num_noise = noise_distribution_(generator_);
+            for (int i = 0; i < num_noise; ++i)
+                temp.insert({gen_noise_distribution_(generator_), gen_noise_distribution_(generator_)});
+        }
+
+        ///Efficiency
+        if (real_distribution(generator_) < 0.95) {
+
+            ///Multiplicity
+            double position_x = affine_transform_.TransformPoint(hit->GetPos())[0];
+            double position_y = affine_transform_.TransformPoint(hit->GetPos())[1];
+            double pos_on_pad_x = position_x - static_cast<int>(position_x);
+            double pos_on_pad_y = position_y - static_cast<int>(position_y);
+
+            auto I = static_cast<int>((position_x + chamber_size_[0] * 0.5) / pad_size_);
+            auto J = static_cast<int>((position_y + chamber_size_[1] * 0.5) / pad_size_);
+
+            temp.insert({I, J});
+
+            double rand_number = real_distribution(generator_);
+            if (rand_number > 0.99) {
+                // Multiplicity 4
+                if (pos_on_pad_x - pos_on_pad_x / 2 <= 0 and pos_on_pad_y - pos_on_pad_y / 2 <= 0) {
+                    temp.insert({I - 1, J});
+                    temp.insert({I, J - 1});
+                    temp.insert({I - 1, J - 1});
+                } else {
+                    if (pos_on_pad_x - pos_on_pad_x / 2 > 0 and pos_on_pad_y - pos_on_pad_y / 2 > 0) {
+                        temp.insert({I + 1, J});
+                        temp.insert({I, J + 1});
+                        temp.insert({I + 1, J + 1});
+                    } else {
+                        if (pos_on_pad_x - pos_on_pad_x / 2 > 0 and pos_on_pad_y - pos_on_pad_y / 2 <= 0) {
+                            temp.insert({I + 1, J});
+                            temp.insert({I, J - 1});
+                            temp.insert({I + 1, J - 1});
+                        } else {
+                            temp.insert({I - 1, J});
+                            temp.insert({I, J + 1});
+                            temp.insert({I - 1, J + 1});
+                        }
+                    }
+                }
+            } else {
+                if (rand_number > 0.95) {
+                    // Multiplicity 3
+                    if (pos_on_pad_x - pos_on_pad_x / 2 <= 0 and pos_on_pad_y - pos_on_pad_y / 2 <= 0) {
+                        temp.insert({I - 1, J});
+                        temp.insert({I, J - 1});
+                    } else {
+                        if (pos_on_pad_x - pos_on_pad_x / 2 > 0 and pos_on_pad_y - pos_on_pad_y / 2 > 0) {
+                            temp.insert({I + 1, J});
+                            temp.insert({I, J + 1});
+                        } else {
+                            if (pos_on_pad_x - pos_on_pad_x / 2 > 0 and pos_on_pad_y - pos_on_pad_y / 2 <= 0) {
+                                temp.insert({I + 1, J});
+                                temp.insert({I, J - 1});
+                            } else {
+                                temp.insert({I - 1, J});
+                                temp.insert({I, J + 1});
+                            }
+                        }
+                    }
+                } else {
+                    if (rand_number > 0.63) {
+                        // Multiplicity 2
+                        double min_distance = std::min({pos_on_pad_x, pos_on_pad_y, pad_size_ - pos_on_pad_x,
+                                                       pad_size_ - pos_on_pad_y});
+                        if (pos_on_pad_x == min_distance)
+                            temp.insert({I - 1, J});
+                        else {
+                            if (pos_on_pad_y == min_distance)
+                                temp.insert({I, J - 1});
+                            else {
+                                if (pad_size_ - pos_on_pad_x == min_distance)
+                                    temp.insert({I + 1, J});
+                                else
+                                    temp.insert({I, J + 1});
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //TODO supprimer predigit
+        std::vector<std::pair<int, int>> predigit (temp.size());
+        auto new_end = std::copy_if(temp.begin(), temp.end(), predigit.begin(), [](std::pair<int, int> ij)->bool{return ij.first>=0 and ij.first<=95 and ij.second>=0 and ij.second<=95;});
+        predigit.resize(static_cast<unsigned long>(std::distance(predigit.begin(), new_end)));
+
+        int position[3]{};
+        for (auto &it : predigit){
+
+            position[0] = it.first;
+            position[1] = it.second;
+            position[2] = K;
+            digits.emplace_back(position, time);
+        }
+    }
+    return digits;
 }

@@ -9,6 +9,13 @@
 #include "tls.hh"
 #include "rpc_base.h"
 
+struct CMScanDigit{
+
+    CMScanDigit(const int *position, int time) : time_(time), position_()
+    { for (int i = 0; i < 3; ++i) position_[i] = position[i];}
+    int position_[3]{};
+    int time_;
+};
 
 class CMScanHit : public G4VHit {
 

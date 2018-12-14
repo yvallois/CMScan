@@ -6,7 +6,8 @@ CMScanRootWriter::CMScanRootWriter(const std::string &output_name) : tfile_(null
                                                                      event_number_(0),
                                                                      output_x_(0),
                                                                      output_y_(0),
-                                                                     output_z_(0) {
+                                                                     output_z_(0),
+                                                                     time_(0) {
 
     tfile_ = new TFile(output_name_.c_str(),"RECREATE");
     if(!(tfile_->IsOpen()) || tfile_->IsZombie())
@@ -17,9 +18,10 @@ CMScanRootWriter::CMScanRootWriter(const std::string &output_name) : tfile_(null
     ttree_ = new TTree("CMScan","CMScan");
     ttree_->SetAutoSave(32*1024);
     ttree_->Branch("event_number_", &event_number_, "event_number_/I");
-    ttree_->Branch("output_i_",&output_x_,"output_i_/D");
-    ttree_->Branch("output_j_",&output_y_,"output_j_/D");
-    ttree_->Branch("output_k_",&output_z_,"output_k_/D");
+    ttree_->Branch("output_i_",&output_x_,"output_i_/I");
+    ttree_->Branch("output_j_",&output_y_,"output_j_/I");
+    ttree_->Branch("output_k_",&output_z_,"output_k_/I");
+    ttree_->Branch("time_", &time_, "time_/I");
 }
 
 CMScanRootWriter::~CMScanRootWriter() {
@@ -29,15 +31,16 @@ CMScanRootWriter::~CMScanRootWriter() {
     delete tfile_;
 }
 
-void CMScanRootWriter::AddHits(std::vector<CMScanHit *> &hits) {
+void CMScanRootWriter::AddHits(std::vector<CMScanDigit> &digits) {
 
-    for (auto &hit : hits) {
+    for (auto &digit : digits) {
 
-        output_x_ = hit->GetPos()[0];
-        output_y_ = hit->GetPos()[1];
-        output_z_ = hit->GetPos()[2];
+        output_x_ = digit.position_[0];
+        output_y_ = digit.position_[1];
+        output_z_ = digit.position_[2];
+        time_ = digit.time_;
         ttree_->Fill();
-        output_x_ = output_y_ = output_z_ = 0;
+        output_x_ = output_y_ = output_z_ = time_ = 0;
     }
     event_number_++;
 }

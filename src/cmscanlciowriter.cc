@@ -30,7 +30,7 @@ void CMScanLcioWriter::CreateEvent(const G4Event *event) {
 
     lcevent_ = new IMPL::LCEventImpl();
     lcevent_->setRunNumber(G4RunManager::GetRunManager()->GetCurrentRun()->GetRunID());
-    lcevent_->setEventNumber( event->GetEventID() ) ;
+    lcevent_->setEventNumber(event->GetEventID());
     lcevent_->setTimeStamp(static_cast<EVENT::long64>(CMTScanPrimaryGeneratorAction::GetDuration() / 200e-9));
 }
 
@@ -40,7 +40,7 @@ void CMScanLcioWriter::ClearEvent() {
     delete lcevent_;
 }
 
-void CMScanLcioWriter::AddHits(std::vector<CMScanHit*> &hits) {
+void CMScanLcioWriter::AddHits(std::vector<CMScanDigit> &digits) {
 
     IMPL::LCCollectionVec *collection = new IMPL::LCCollectionVec(EVENT::LCIO::CALORIMETERHIT);
     IMPL::LCFlagImpl flag;
@@ -49,16 +49,15 @@ void CMScanLcioWriter::AddHits(std::vector<CMScanHit*> &hits) {
     flag.setBit(EVENT::LCIO::RCHBIT_TIME);
     collection->setFlag(flag.getFlag());
 
-    for (auto &hit : hits) {
+    for (auto &hit : digits) {
 
         auto* calorimeter_hit = new IMPL::CalorimeterHitImpl();
         float position[3];
-        position[0] = static_cast<float>(hit->GetPos()[0]);
-        position[1] = static_cast<float>(hit->GetPos()[1]);
-        position[2] = static_cast<float>(hit->GetPos()[2]);
+        position[0] = hit.position_[0];
+        position[1] = hit.position_[1];
+        position[2] = hit.position_[2];
         calorimeter_hit->setPosition(position);
-        calorimeter_hit->setTime(static_cast<float>(hit->GetTime()));
-        calorimeter_hit->setCellID0(hit->GetChamberID());
+        calorimeter_hit->setTime(static_cast<float>(hit.time_));
         collection->addElement(calorimeter_hit);
     }
     lcevent_->addCollection(collection, "CMScan");

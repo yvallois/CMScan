@@ -13,15 +13,16 @@ public:
 
     virtual ~CMScanRootWriter();
 
-    void AddHits(std::vector<CMScanHit*> &hits);
+    void AddHits(std::vector<CMScanDigit> &digits);
 
 private:
     TFile *tfile_;
     std::string output_name_;
     TTree *ttree_;
-    double output_x_;
-    double output_y_;
-    double output_z_;
+    int output_x_;
+    int output_y_;
+    int output_z_;
+    int time_;
     int event_number_;
 };
 

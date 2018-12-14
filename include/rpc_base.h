@@ -8,6 +8,11 @@
 #include "G4ThreeVector.hh"
 #include "G4LogicalVolume.hh"
 
+#include "cmscanhit.hh"
+
+struct CMScanDigit;
+class CMScanHit;
+
 class Rpc_base{
 public:
     Rpc_base(int chamber_id, int stack_id) : translation_(), rotation_(), chamber_id_(chamber_id), stack_id_(stack_id) {}
@@ -21,6 +26,8 @@ public:
     virtual G4ThreeVector GetChamberSize() = 0;
 
     virtual void PrintGeometry() = 0;
+
+    virtual std::vector<CMScanDigit> Digitize(std::vector<CMScanHit*> &hits) = 0;
 
     virtual G4ThreeVector GetTranslation(){ return translation_; }
 
