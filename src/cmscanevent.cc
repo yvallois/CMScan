@@ -33,7 +33,6 @@ void CMTScanEventAction::EndOfEventAction(const G4Event *event) {
     for (int i = 0; i < col->GetNumberOfCollections(); i++) {
 
         auto *hits_collection = dynamic_cast<HitsCollection*>(col->GetHC(i));
-        std::cout << "hit collection name : " << hits_collection->GetName() << std::endl;
         std::vector<CMScanHit*> hits_per_chamber = *(hits_collection->GetVector());
 
         if (!hits_per_chamber.empty()){

@@ -6,7 +6,7 @@
 #include "G4VUserDetectorConstruction.hh"
 #include "globals.hh"
 #include "G4ThreeVector.hh"
-#include "worldgeometry.hh"
+#include "worldgeometry.h"
 
 
 class G4VPhysicalVolume;

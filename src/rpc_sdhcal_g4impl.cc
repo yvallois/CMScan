@@ -229,8 +229,10 @@ std::vector<CMScanDigit> Rpc_SDHCAL_G4impl::Digitize(std::vector<CMScanHit *> &h
                 } else {
                     if (rand_number > 0.63) {
                         // Multiplicity 2
-                        double min_distance = std::min({pos_on_pad_x, pos_on_pad_y, pad_size_ - pos_on_pad_x,
-                                                       pad_size_ - pos_on_pad_y});
+                        double min_distance = std::min(std::initializer_list<double>{pos_on_pad_x,
+                                                                                     pos_on_pad_y,
+                                                                                     pad_size_ - pos_on_pad_x,
+                                                                                     pad_size_ - pos_on_pad_y});
                         if (pos_on_pad_x == min_distance)
                             temp.insert({I - 1, J});
                         else {

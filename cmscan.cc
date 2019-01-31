@@ -11,7 +11,7 @@
 
 #include "cmscandetectorconstruction.hh"
 #include "cmscanactioninitialization.hh"
-#include "worldgeometry.hh"
+#include "worldgeometry.h"
 
 namespace po = boost::program_options;
 

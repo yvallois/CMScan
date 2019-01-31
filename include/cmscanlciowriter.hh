@@ -6,7 +6,7 @@
 #include <IO/LCWriter.h>
 #include <IMPL/LCEventImpl.h>
 #include "cmscanhit.hh"
-#include "worldgeometry.hh"
+#include "worldgeometry.h"
 
 
 class CMScanLcioWriter {

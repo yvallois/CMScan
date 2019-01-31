@@ -1,7 +1,7 @@
 //
 // Created by vallois on 04/07/18.
 //
-#include "worldgeometry.hh"
+#include "worldgeometry.h"
 #include "filereadstream.h"
 #include "document.h"
 

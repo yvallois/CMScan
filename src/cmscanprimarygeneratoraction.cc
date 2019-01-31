@@ -1,5 +1,5 @@
 #include "cmscanprimarygeneratoraction.hh"
-#include "worldgeometry.hh"
+#include "worldgeometry.h"
 #include "G4Event.hh"
 
 //TODO clean and change particle selection.
@@ -130,10 +130,10 @@ G4double CMTScanPrimaryGeneratorAction::TimeSimulated = 0;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void CMTScanPrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
 {
-    WorldGeometry *_geometryVariable = WorldGeometry::Get();
-    G4double Detector_Size_X = _geometryVariable->getDetectorSize().getX();
-    G4double Detector_Size_Y = _geometryVariable->getDetectorSize().getY();
-    G4double Detector_Size_Z = _geometryVariable->getDetectorSize().getZ();
+    WorldGeometry *geometryVariable = WorldGeometry::Get();
+    G4double Detector_Size_X = geometryVariable->getDetectorSize().getX();
+    G4double Detector_Size_Y = geometryVariable->getDetectorSize().getY();
+    G4double Detector_Size_Z = geometryVariable->getDetectorSize().getZ();
 
 	if (InputState != 0){
 
