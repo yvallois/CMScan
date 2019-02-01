@@ -39,6 +39,7 @@ private:
   G4int InputState;
 
   static G4double TimeSimulated;
+  G4ThreeVector detector_size_;
 };
 
 #endif

@@ -11,14 +11,14 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4PVPlacement.hh"
 #include "G4SDManager.hh"
-#include "G4SDParticleFilter.hh"
+#include "G4SDChargedFilter.hh"
 
 #include "rpc_sdhcal_g4impl.h"
 #include "cmscansensitivedetector.hh"
 
 
-Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl(int chamber_id, int stack_id) :
-        Rpc_SDHCAL(chamber_id, stack_id),
+Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl(int chamber_id, int stack_id, const std::string &rpc_type) :
+        Rpc_SDHCAL(chamber_id, stack_id, rpc_type),
         rpc_logic_(nullptr),
         name_(""),
         noise_rate_(2),
@@ -121,10 +121,8 @@ void Rpc_SDHCAL_G4impl::Rpc_SDHCAL_G4impl::Build() {
 
     auto *sensitive_detector = new CMScanSensitiveDetector("SensitiveDetector_" + std::to_string(chamber_id_),
                                                            "Hit_" + std::to_string(chamber_id_), chamber_id_);
-    G4SDParticleFilter *muon_filter = new G4SDParticleFilter("MuonFilter");
-    muon_filter->add("mu+");
-    muon_filter->add("mu-");
-    sensitive_detector->SetFilter(muon_filter);
+    G4SDChargedFilter *filter = new G4SDChargedFilter("ChargedFilter");
+    sensitive_detector->SetFilter(filter);
 
     G4SDManager::GetSDMpointer()->AddNewDetector(sensitive_detector);
     gas_chamber_logic->SetSensitiveDetector(sensitive_detector);

@@ -1,9 +1,13 @@
+#include <algorithm>
+
 #include "cmscanprimarygeneratoraction.hh"
 #include "worldgeometry.h"
 #include "G4Event.hh"
 
 //TODO clean and change particle selection.
-CMTScanPrimaryGeneratorAction::CMTScanPrimaryGeneratorAction(const char *inputfile){
+CMTScanPrimaryGeneratorAction::CMTScanPrimaryGeneratorAction(const char *inputfile) :
+        detector_size_(WorldGeometry::Instance()->GetDetectorSize()){
+
 	// define a particle gun
 	particleGun = new G4ParticleGun();
 
@@ -21,15 +25,8 @@ CMTScanPrimaryGeneratorAction::CMTScanPrimaryGeneratorAction(const char *inputfi
         }
 
         CRYSetup *setup = new CRYSetup(setupString, "../data");
-        WorldGeometry *_geometryVariable = WorldGeometry::Get();
 
-        double Detector_Size_X = _geometryVariable->getDetectorSize().getX() / 1000.;
-        double Detector_Size_Y = _geometryVariable->getDetectorSize().getY() / 1000.;
-
-        if (Detector_Size_X >= Detector_Size_Y)
-            setup->setParam(CRYSetup::subboxLength, Detector_Size_X);
-        if (Detector_Size_X < Detector_Size_Y)
-            setup->setParam(CRYSetup::subboxLength, Detector_Size_Y);
+        setup->setParam(CRYSetup::subboxLength, std::max(std::initializer_list<double>{detector_size_[0] / 1000., detector_size_[1] / 1000.}));
 
         gen = new CRYGenerator(setup);
 
@@ -130,11 +127,6 @@ G4double CMTScanPrimaryGeneratorAction::TimeSimulated = 0;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void CMTScanPrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
 {
-    WorldGeometry *geometryVariable = WorldGeometry::Get();
-    G4double Detector_Size_X = geometryVariable->getDetectorSize().getX();
-    G4double Detector_Size_Y = geometryVariable->getDetectorSize().getY();
-    G4double Detector_Size_Z = geometryVariable->getDetectorSize().getZ();
-
 	if (InputState != 0){
 
         auto *str = new G4String("CRY library was not successfully initialized");
@@ -159,14 +151,15 @@ void CMTScanPrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
 		if ((*vect)[0]->w() >= 0 && (*vect)[0]->ke() <= 10.0)
 		    continue; // (Mev) Avoid generating particles that can't be detected
 
-		G4ThreeVector pos((*vect)[0]->x()*m, (*vect)[0]->y()*m, (*vect)[0]->z()*m + Detector_Size_Z*0.5);
+        G4ThreeVector pos((*vect)[0]->x() * CLHEP::m, (*vect)[0]->y() * CLHEP::m,
+                          (*vect)[0]->z() * CLHEP::m + detector_size_[2] * 0.5);
 		G4ThreeVector mom((*vect)[0]->u(), (*vect)[0]->v(), (*vect)[0]->w());
-		G4double ft = (Detector_Size_Z) / fabs(mom[2]);
+        G4double ft = (detector_size_[2]) / fabs(mom[2]);
 
-		if((fabs(pos[0]) < Detector_Size_X*0.5)&&
-           (fabs(pos[1]) < Detector_Size_Y*0.5)&&
-           (fabs(mom[0] * ft + pos[0]) < Detector_Size_X*0.5)&&
-           (fabs(mom[1] * ft + pos[1]) < Detector_Size_Y*0.5)){
+        if ((fabs(pos[0]) < detector_size_[0] * 0.5) &&
+            (fabs(pos[1]) < detector_size_[1] * 0.5) &&
+            (fabs(mom[0] * ft + pos[0]) < detector_size_[0] * 0.5) &&
+            (fabs(mom[1] * ft + pos[1]) < detector_size_[1] * 0.5)) {
 
 		    GoodMuons.push_back((*vect)[0]);
             ReadyToLaunch = true;
@@ -174,21 +167,21 @@ void CMTScanPrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
     }
 	while(!ReadyToLaunch);
 
-	for (auto &GoodMuon : GoodMuons) {
-		particleGun->GeneratePrimaryVertex(anEvent);
-		particleGun->SetParticleDefinition(particleTable->FindParticle(GoodMuon->PDGid()));
-		particleGun->SetParticleEnergy(GoodMuon->ke() * MeV);
-		particleGun->SetParticlePosition(G4ThreeVector(GoodMuon->x()*m,
-                                                       GoodMuon->y()*m,
-                                                       GoodMuon->z()*m  + Detector_Size_Z*0.5 + 2*cm));
-		particleGun->SetParticleMomentumDirection(G4ThreeVector(GoodMuon->u(),
+    for (auto &GoodMuon : GoodMuons) {
+        particleGun->GeneratePrimaryVertex(anEvent);
+        particleGun->SetParticleDefinition(particleTable->FindParticle(GoodMuon->PDGid()));
+        particleGun->SetParticleEnergy(GoodMuon->ke() * CLHEP::MeV);
+        particleGun->SetParticlePosition(G4ThreeVector(GoodMuon->x() * CLHEP::m,
+                                                       GoodMuon->y() * CLHEP::m,
+                                                       GoodMuon->z() * CLHEP::m + detector_size_[2] * 0.5 + 2 * CLHEP::cm));
+        particleGun->SetParticleMomentumDirection(G4ThreeVector(GoodMuon->u(),
                                                                 GoodMuon->v(),
                                                                 GoodMuon->w()));
-		particleGun->SetParticleTime(GoodMuon->t() * s);
-	}
-	for (auto &i : *vect)
-	    delete i;
-	vect->clear();
+        particleGun->SetParticleTime(GoodMuon->t() * CLHEP::s);
+    }
+    for (auto &i : *vect)
+        delete i;
+    vect->clear();
 
-	TimeSimulated = gen->timeSimulated();
+    TimeSimulated = gen->timeSimulated();
 }

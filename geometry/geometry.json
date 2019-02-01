@@ -1,66 +1,68 @@
 {
   "chambers": [
     {
-      "chamber_id" : 0,
+      "chamber_id": 0,
       "stack_id" : 0,
-      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : 1800}],
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : 1420}],
       "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
-      "type" : "SDHCAL"
+      "dif_id" : [122, 123, 130],
+      "type" : "SDHCALG4IMPL"
     },
     {
-      "chamber_id" : 1,
+      "chamber_id": 1,
       "stack_id" : 0,
-      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : 1600}],
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : 1268}],
       "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
-      "type" : "SDHCAL"
+      "dif_id" : [18, 87, 63],
+      "type" : "SDHCALG4IMPL"
     },
     {
-      "chamber_id" : 2,
+      "chamber_id": 2,
       "stack_id" : 0,
-      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : 1400}],
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : 1116}],
       "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
-      "type" : "SDHCAL"
-
+      "dif_id" : [59, 53, 54],
+      "type" : "SDHCALG4IMPL"
     },
     {
-      "chamber_id" : 3,
+      "chamber_id": 3,
       "stack_id" : 0,
-      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : 1200}],
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : 964}],
       "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
-      "type" : "SDHCAL"
-
+      "dif_id" : [69, 106, 62],
+      "type" : "SDHCALG4IMPL"
     },
     {
       "chamber_id": 4,
       "stack_id" : 1,
-      "translation": [{"pos_x": 0}, {"pos_y": 0}, {"pos_z": -1200}],
-      "rotation": [{"psi": 0}, {"theta": 0}, {"phi": 0}],
-      "type" : "SDHCAL"
-
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : -970}],
+      "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
+      "dif_id" : [95, 8, 5],
+      "type" : "SDHCALG4IMPL"
     },
     {
-      "chamber_id" : 5,
+      "chamber_id": 5,
       "stack_id" : 1,
-      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : -1400}],
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : -1118}],
       "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
-      "type" : "SDHCAL"
-
+      "dif_id" : [163, 161, 162],
+      "type" : "SDHCALG4IMPL"
     },
     {
-      "chamber_id" : 6,
+      "chamber_id": 6,
       "stack_id" : 1,
-      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : -1600}],
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : -1267}],
       "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
-      "type" : "SDHCAL"
-
+      "dif_id" : [96, 90, 27],
+      "type" : "SDHCALG4IMPL"
     },
     {
-      "chamber_id" : 7,
+      "chamber_id": 7,
       "stack_id" : 1,
-      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : -1800}],
+      "translation" : [{"pos_x" : 0}, {"pos_y" : 0}, {"pos_z" : -1420}],
       "rotation" : [{"psi" : 0}, {"theta" : 0}, {"phi" : 0}],
-      "type" : "SDHCAL"
-
+      "dif_id" : [101, 35, 99],
+      "type" : "SDHCALG4IMPL"
     }
   ]
 }

@@ -16,19 +16,19 @@
 class Rpc_SDHCAL_G4impl : public Rpc_SDHCAL {
 public:
 
-    Rpc_SDHCAL_G4impl(int chamber_id, int stack_id);
+    Rpc_SDHCAL_G4impl(int chamber_id, int stack_id, const std::string &rpc_type);
 
     virtual ~Rpc_SDHCAL_G4impl() {delete rpc_logic_;}
 
     void PrintGeometry() override;
 
-    void Build() override;
+    void Build();
 
-    std::vector<CMScanDigit> Digitize(std::vector<CMScanHit*> &hits) override;
+    std::vector<CMScanDigit> Digitize(std::vector<CMScanHit*> &hits);
 
-    void AddChamber(G4LogicalVolume *mother_logic) override;
+    void AddChamber(G4LogicalVolume *mother_logic);
 
-    void GlobalToRPCCoordinate(G4ThreeVector &coordinate) override;
+    void GlobalToRPCCoordinate(CLHEP::Hep3Vector &position) override;
 
 private:
 

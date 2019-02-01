@@ -12,12 +12,12 @@
 #include "cmscandetectorconstruction.hh"
 #include "cmscanactioninitialization.hh"
 #include "worldgeometry.h"
+#include "factory.h"
+#include "rpc_sdhcal_g4impl.h"
 
 namespace po = boost::program_options;
 
 void conflicting_options(const po::variables_map& vm, const char* opt1, const char* opt2);
-
-WorldGeometry *WorldGeometry::world_geometry_ = nullptr;
 
 int main(int argc,char** argv)
 {
@@ -48,8 +48,11 @@ int main(int argc,char** argv)
             return 0;
         }
 
-        if (vm.count("config"))
-            WorldGeometry::Instance(vm["config"].as<std::string>());
+        if (vm.count("config")) {
+            WorldGeometry *wg = WorldGeometry::Instance();
+            Factory<Rpc_base, std::string>::Register("SDHCALG4IMPL", &CreateInstance<Rpc_SDHCAL_G4impl>);
+            wg->ParseJson(vm["config"].as<std::string>());
+        }
         else
             throw std::logic_error(std::string("Error : configuration file is missing"));
 

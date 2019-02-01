@@ -23,7 +23,6 @@ public:
     G4VPhysicalVolume* DefineVolumes();
 
 private:
-    std::string geometry_file_;
     WorldGeometry *world_geometry_;
 };
 #endif

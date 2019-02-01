@@ -17,14 +17,17 @@ else()
   find_package(Geant4 REQUIRED)
 endif()
 
+#BOOST
 FIND_PACKAGE(Boost COMPONENTS program_options REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
+#LCIO
 FIND_PACKAGE( LCIO )
 INCLUDE_DIRECTORIES( ${LCIO_INCLUDE_DIRS} )
 LINK_LIBRARIES( ${LCIO_LIBRARIES} )
 ADD_DEFINITIONS( ${LCIO_DEFINITIONS} )
 
+#ROOT
 FIND_PACKAGE( ROOT REQUIRED )
 INCLUDE_DIRECTORIES( SYSTEM ${ROOT_INCLUDE_DIRS} )
 LINK_LIBRARIES( ${ROOT_LIBRARIES} )
@@ -35,6 +38,9 @@ SET(CRY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../cry_v1.7)
 SET(CRY_INCLUDE_DIRS ${CRY_DIR}/src)
 SET(CRY_LIBRARIES ${CRY_DIR}/lib/libCRY.a)
 include_directories( ${CRY_INCLUDE_DIRS} )
+
+include_directories(${CALOSTUFF}/include)
+link_directories(${CALOSTUFF}/lib)
 
 include_directories(/home/vallois/rapidjson/include/rapidjson)
 #----------------------------------------------------------------------------
@@ -55,9 +61,9 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(cmscan cmscan.cc ${sources} ${headers} include/rpc_base.h include/factory.h include/rpc_sdhcal.h src/rpc_sdhcal_g4impl.cc include/rpc_sdhcal_g4impl.h)
-target_link_libraries(cmscan ${Geant4_LIBRARIES} ${CRY_LIBRARIES})
-target_link_libraries(cmscan LINK_PUBLIC ${Boost_LIBRARIES} )
+add_executable(cmscan cmscan.cc ${sources} ${headers} src/rpc_sdhcal_g4impl.cc include/rpc_sdhcal_g4impl.h)
+target_link_libraries(cmscan ${Geant4_LIBRARIES} ${CRY_LIBRARIES} ${Boost_LIBRARIES} CaloStuff Tool)
+#target_link_libraries(cmscan LINK_PUBLIC ${Boost_LIBRARIES} )
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build CMTScan. This is so that we can run the executable directly because it
@@ -80,6 +86,6 @@ endforeach()
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS cmscan DESTINATION bin)
+install(TARGETS cmscan DESTINATION {CMAKE_SOURCE_DIR}/bin)
 
 

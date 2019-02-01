@@ -11,7 +11,7 @@
 
 struct CMScanDigit{
 
-    CMScanDigit(const int *position, int time) : time_(time), position_()
+    CMScanDigit(const int *position, int time) : position_(), time_(time)
     { for (int i = 0; i < 3; ++i) position_[i] = position[i];}
     int position_[3]{};
     int time_;

@@ -1,16 +1,16 @@
-#include "cmscandetectorconstruction.hh"
-#include "cmscansensitivedetector.hh"
 #include "G4SDManager.hh"
 #include "G4RunManager.hh"
 #include "G4NistManager.hh"
-
 #include "G4Box.hh"
 #include "G4PVPlacement.hh"
 
-CMScanDetectorConstruction::CMScanDetectorConstruction() : geometry_file_("../geometry/geometry.json") {
+#include "cmscandetectorconstruction.hh"
+#include "cmscansensitivedetector.hh"
+#include "rpc_sdhcal_g4impl.h"
 
-    world_geometry_ = WorldGeometry::Get();
-}
+using namespace CLHEP;
+
+CMScanDetectorConstruction::CMScanDetectorConstruction() : world_geometry_(WorldGeometry::Instance()) {}
 
 
 G4VPhysicalVolume* CMScanDetectorConstruction::Construct() {
@@ -142,16 +142,24 @@ G4VPhysicalVolume* CMScanDetectorConstruction::DefineVolumes() {
 	/// World
 	/////////////////////////////////////////////////////
 
-    G4Box *world_solid = new G4Box("WorldSolid", world_geometry_->getWorldSize()[0]*0.5, world_geometry_->getWorldSize()[1]*0.5, world_geometry_->getWorldSize()[2]*0.5);
+    Hep3Vector world_size = world_geometry_->GetWorldSize();
+    G4Box *world_solid = new G4Box("WorldSolid", world_size[0] * 0.5, world_size[1] * 0.5, world_size[2] * 0.5);
     G4LogicalVolume *world_logic = new G4LogicalVolume(world_solid, nistManager->FindOrBuildMaterial("G4_AIR"), "WorldLogic");
     G4VPhysicalVolume *world_physic = new G4PVPlacement(nullptr, G4ThreeVector(), world_logic, "WorldPhysic", nullptr, false, 0, true);
 
     ///Construction du detecteur et des filtres
-	std::map<int, Rpc_base*> rpc_store = world_geometry_->GetRpcs();
-	for (auto &item : rpc_store){
-	    item.second->Build();
-        item.second->AddChamber(world_logic);
-	}
+    auto num_rpc = world_geometry_->GetNumRpc();
+    for (int i = 0; i < num_rpc; ++i) {
+
+        Rpc_base *rpc_base_ptr = world_geometry_->GetRpc(i);
+        if (rpc_base_ptr->GetRpcType() == "SDHCALG4IMPL"){
+
+            auto rpc_ptr = dynamic_cast<Rpc_SDHCAL_G4impl*>(rpc_base_ptr);
+            rpc_ptr->Build();
+            rpc_ptr->AddChamber(world_logic);
+        }
+    }
+
 /*
     /////////////////////////////////////////////////////
     /// Container

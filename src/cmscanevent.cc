@@ -3,28 +3,25 @@
 #include "G4RunManager.hh"
 #include "G4SDManager.hh"
 
+#include "rpc_sdhcal_g4impl.h"
 
 CMTScanEventAction::CMTScanEventAction(CMTScanRunAction *run_action) :
         G4UserEventAction(),
         run_action_(run_action),
-        world_geometry_(nullptr) {
-
-    world_geometry_ = WorldGeometry::Get();
-}
+        world_geometry_(WorldGeometry::Instance()) {}
 
 
 void CMTScanEventAction::BeginOfEventAction(const G4Event *event) {
 
-    CMScanLcioWriter *lcio_writer = run_action_->GetLcioWriter();
-    lcio_writer->ClearEvent();
-    lcio_writer->CreateEvent(event);
+    lcio_writer_ = run_action_->GetLcioWriter();
+    root_writer_ = run_action_->GetRootWriter();
+
+    lcio_writer_->ClearEvent();
+    lcio_writer_->CreateEvent(event);
 }
 
 
 void CMTScanEventAction::EndOfEventAction(const G4Event *event) {
-
-    CMScanLcioWriter *lcio_writer = run_action_->GetLcioWriter();
-    CMScanRootWriter *root_writer = run_action_->GetRootWriter();
 
     G4HCofThisEvent *col = event->GetHCofThisEvent();
     std::vector<CMScanDigit> digits;
@@ -38,14 +35,19 @@ void CMTScanEventAction::EndOfEventAction(const G4Event *event) {
         if (!hits_per_chamber.empty()){
 
             int chamber_id = hits_per_chamber.at(0)->GetChamberID();
-            auto digits_per_chamber = world_geometry_->GetRpc(chamber_id)->Digitize(hits_per_chamber);
-            digits.insert(digits.end(), digits_per_chamber.begin(), digits_per_chamber.end());
+            Rpc_base *rpc_base_ptr = world_geometry_->GetRpc(chamber_id);
+            if (rpc_base_ptr->GetRpcType() == "SDHCALG4IMPL"){
+
+                auto rpc_ptr = dynamic_cast<Rpc_SDHCAL_G4impl*>(rpc_base_ptr);
+                auto digits_per_chamber = rpc_ptr->Digitize(hits_per_chamber);
+                digits.insert(digits.end(), digits_per_chamber.begin(), digits_per_chamber.end());
+            }
         }
     }
 
     if (!digits.empty()) {
-        root_writer->AddHits(digits);
-        lcio_writer->AddHits(digits);
+        root_writer_->AddHits(digits);
+        lcio_writer_->AddHits(digits);
     }
 }
 

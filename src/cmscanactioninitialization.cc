@@ -2,7 +2,6 @@
 #include "cmscanprimarygeneratoraction.hh"
 #include "cmscanrunaction.hh"
 #include "cmscanevent.hh"
-#include "cmscanstackingaction.hh"
 
 
 CMScanActionInitialization::CMScanActionInitialization(std::string output_name) : G4VUserActionInitialization(),
@@ -29,6 +28,4 @@ void CMScanActionInitialization::Build() const {
     auto *eventAction = new CMTScanEventAction(run_action);
     SetUserAction(eventAction);
 
-    auto *stackingAction = new CMTScanStackingAction;
-    SetUserAction(stackingAction);
 }
